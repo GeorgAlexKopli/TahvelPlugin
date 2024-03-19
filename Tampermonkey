@@ -1,0 +1,80 @@
+// ==UserScript==
+// @name         Tahvel x extension
+// @namespace    http://tahvel.edu.ee/
+// @version      2024-03-14
+// @description  Muudab tahvlis negatiivsed hinded punaseks.
+// @author       John
+// @match        https://tahvel.edu.ee/
+// @icon         https://i.postimg.cc/903KnYnJ/Kuvat-mmis-2024-03-14-131627.png
+// @grant        GM_addStyle
+// ==/UserScript==
+
+GM_addStyle("#main-wrapper {background: inherit;}");
+
+(function() {
+    'use strict';
+
+    // Counter to count negative grades changed to red
+    var negativeGradeCounter = 0;
+
+    // Function to create and update the counter element
+    function updateCounter() {
+        var counterElement = document.getElementById('gradeCounter');
+        if (!counterElement) {
+            // Create a new element if it doesn't exist
+            counterElement = document.createElement('div');
+            counterElement.id = 'gradeCounter';
+            counterElement.style.position = 'fixed';
+            counterElement.style.top = '30px';
+            counterElement.style.right = '1250px';
+            counterElement.style.padding = '10px';
+            counterElement.style.background = 'rgba(255, 0, 0, 0.8)';
+            counterElement.style.color = 'white';
+            counterElement.style.fontWeight = 'bold';
+            counterElement.style.zIndex = '9999';
+            document.body.appendChild(counterElement);
+        }
+        // Update the content of the counter element
+        counterElement.textContent = "Puudulikke hindeid: " + negativeGradeCounter;
+
+        if (negativeGradeCounter > 15) {
+            // Apply background image
+            document.body.style.backgroundImage = "url('https://i.postimg.cc/VNwvb5Ph/image.png')";
+            document.body.style.backgroundSize = "cover";
+            document.body.style.backgroundRepeat = "no-repeat";
+            document.body.style.backgroundPosition = "center";
+        }
+    }
+
+    window.addEventListener('load', function() {
+        // Find all elements with the specified ng-if attribute
+        setTimeout(() => {
+            var grades = document.querySelectorAll('span[ng-if="result.grade"]');
+
+            // Loop through each grade element
+            grades.forEach(function(grade) {
+                // Get the text content of the grade
+                var gradeValue = grade.textContent.trim();
+
+                // Check if the grade is "x", "1", or "2"
+                if (gradeValue === "X" || gradeValue === "1" || gradeValue === "2") {
+                    // Check if the grade meets the specified condition (you can replace this with your condition)
+                    if (isNegative(gradeValue)) {
+                        // Change the color of the grade to red
+                        grade.style.color = 'red';
+                        // Increment the counter
+                        negativeGradeCounter++;
+                    }
+                }
+            });
+
+            // Update the counter on the screen
+            updateCounter();
+        }, 1500);
+    });
+
+    // Function to check if the grade is negative (you can replace this with your condition)
+    function isNegative(grade) {
+        return grade === "X" || grade === "2";
+    }
+})();
